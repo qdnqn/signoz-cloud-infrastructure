@@ -1,0 +1,83 @@
+users:
+  - default
+package_upgrade: true
+packages:
+  - git
+  - curl
+  - htop
+runcmd:
+  - 'curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"'
+  - 'curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"'
+  - 'echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check'
+  - 'install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl'
+  - 'mkdir -p /etc/apt/keyrings'
+  - 'curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg'
+  - 'echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null'
+  - 'apt-get update'
+  - 'apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin -y'
+  - 'snap install go --classic'
+  - 'curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3'
+  - 'chmod 700 get_helm.sh'
+  - './get_helm.sh'
+  - 'wget  https://go.dev/dl/go1.19.linux-amd64.tar.gz'
+  - 'sudo tar -xvf go1.19.linux-amd64.tar.gz'
+  - 'sudo mv go /usr/local'
+  - 'echo "$(hostname -I | cut -d" " -f1)  k3s.local.registry.com" >> /etc/hosts'
+  - 'curl -sfL https://get.k3s.io | sh -'
+  - "echo 'eval `ssh-agent`' >> /etc/bash.bashrc"
+  - 'echo "sudo chown -R ubuntu /etc/rancher" >> /etc/bash.bashrc'
+  - 'echo "sudo chown ubuntu /var/run/docker.sock" >> /etc/bash.bashrc'
+  - 'echo "export KUBECONFIG=/etc/rancher/k3s/k3s.yaml" >> /etc/bash.bashrc'
+  - 'echo "alias k=kubectl" >> /etc/bash.bashrc'
+  - 'ssh-keyscan -t rsa github.com >> /etc/ssh/ssh_known_hosts'
+  - 'eval `ssh-agent`'
+  - 'cd /home/ubuntu/'
+  - 'chown -R ubuntu /home/ubuntu'
+  - 'touch /home/ubuntu/.cloud-init.done'
+write_files:
+  - content: |
+      {
+        "insecure-registries" : ["k3s.local.registry.com:5000"]
+      }
+    path: /etc/docker/daemon.json
+  - content: |
+      mirrors:
+        k3s.local.registry.com:5000:
+          endpoint:
+            - "http://k3s.local.registry.com:5000"
+    path: /etc/rancher/k3s/registries.yaml
+    append: true
+  - content: |
+      #!/bin/bash
+      SP="/-\|"
+      if [[ ! -f "/home/ubuntu/.cloud-init.done" ]]; then
+        echo -n "Waiting for cloud init to finish "
+      fi
+      
+      while [[ ! -f "/home/ubuntu/.cloud-init.done" ]];
+      do
+        printf "\b${SP:i++%${#SP}:1}"
+        sleep 1
+      done;
+
+      if [[ ! -d "/home/ubuntu/cloud-native-infrastructure" ]]; then
+        echo -n "Waiting for mount of directory "
+      fi
+      
+      while [[ ! -d "/home/ubuntu/cloud-native-infrastructure" ]];
+      do
+        printf "\b${SP:i++%${#SP}:1}"
+        sleep 1
+      done;
+        
+      eval `ssh-agent`
+      sudo chown ubuntu /var/run/docker.sock
+
+      cd /home/ubuntu/
+                  
+      cd /home/ubuntu/cloud-native-infrastructure
+      ./scripts/setup-infrastructure.sh
+      
+      export GOROOT=/usr/local/go
+      export PATH=$GOROOT/bin:$PATH
+    path: /home/ubuntu/.bash_profile
