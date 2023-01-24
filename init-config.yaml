@@ -80,4 +80,12 @@ write_files:
       
       export GOROOT=/usr/local/go
       export PATH=$GOROOT/bin:$PATH
+
+      VM_IP=hostname -I | cut -d " " -f1
+      
+      nslookup k3s.local.registry.com
+      
+      if [[ $? == 1 ]]; then
+        echo "${VM_IP} k3s.local.registry.com" >> /etc/hosts
+      fi
     path: /home/ubuntu/.bash_profile

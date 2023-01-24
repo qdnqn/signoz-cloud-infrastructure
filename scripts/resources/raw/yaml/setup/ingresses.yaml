@@ -9,7 +9,7 @@ spec:
     - web
   routes:
     - kind: Rule
-      match: Host(`{VM_IP}`) && ((PathPrefix(`/api`) || PathPrefix(`/dashboard`)))
+      match: Host(``) && ((PathPrefix(`/api`) || PathPrefix(`/dashboard`)))
       services:
         - kind: TraefikService
           name: api@internal
@@ -35,7 +35,7 @@ spec:
     - web
     - websecure
   routes:
-    - match: Host(`{VM_IP}`) && PathPrefix(`/kafdrop`)
+    - match: Host(``) && PathPrefix(`/kafdrop`)
       kind: Rule
       services:
         - name: kafka-kafdrop
