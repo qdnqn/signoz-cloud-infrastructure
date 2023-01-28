@@ -40,6 +40,24 @@ metrics-server-7cd5fcb6b7-4krsv           1/1     Running     0          6h7m
 svclb-traefik-6a62f4c4-86rvd              2/2     Running     0          6h5m
 helm-install-traefik-s6b7t                0/1     Completed   2          6h7m
 traefik-df4ff85d6-mjzkt                   1/1     Running     0          6h5m
+ubuntu@k3s:~/cloud-native-infrastructure$ k get pods -n platform
+NAME                                                READY   STATUS    RESTARTS   AGE
+signoz-clickhouse-operator-774d4d6cc-xhf2t          2/2     Running   0          38h
+signoz-k8s-infra-otel-deployment-5dfdd7899d-9d9kd   1/1     Running   0          38h
+signoz-zookeeper-0                                  1/1     Running   0          38h
+signoz-k8s-infra-otel-agent-tnlpj                   1/1     Running   0          38h
+chi-signoz-clickhouse-cluster-0-0-0                 1/1     Running   0          38h
+signoz-query-service-0                              1/1     Running   0          38h
+signoz-otel-collector-d69d59d68-nqx48               1/1     Running   0          38h
+signoz-otel-collector-metrics-789475976f-w86bz      1/1     Running   0          38h
+signoz-alertmanager-0                               1/1     Running   0          38h
+signoz-frontend-57bb96c66f-ch22x                    1/1     Running   0          38h
+ubuntu@k3s:~/cloud-native-infrastructure$ k get pods -n nginx
+NAME                     READY   STATUS    RESTARTS      AGE
+nginx-597557b498-ldscv   1/1     Running   4 (38h ago)   2d21h
+ubuntu@k3s:~/cloud-native-infrastructure$ k get pods -n backend
+NAME                     READY   STATUS    RESTARTS   AGE
+backend-58ccbcbf-rlxtt   1/1     Running   0          21m
 ```
 Output should look like this. If everything is configured correctly:
 - k3s is installed
