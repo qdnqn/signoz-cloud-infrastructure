@@ -44,12 +44,23 @@ traefik-df4ff85d6-mjzkt                   1/1     Running     0          6h5m
 Output should look like this. If everything is configured correctly:
 - k3s is installed
 - traefik is available and local.k3s is serving ingress endpoints
+- signoz is installend in the platfrom namespace
+- go backend is deployed in the backend namespace
+- nginx is deployed in the nginx namespace
+
+
+### Additional work needed
+IMPORTANT: Add signoz.local to resolve to VM IP(192.168.64.2) to the /etc/hosts file.
 
 ### Test if everything is configured
 From the host machine terminal, execute
 ```bash
-curl local.k3s
+~ curl 192.168.64.2
 404 page not found
+~ curl 192.168.64.2/nginx/getEntries
+{}
+~ curl signoz.local
+<HTML OUTPUT>
 ```
 
 Traefik returned 404 page not found so everything works!

@@ -1,0 +1,55 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik-dashboard
+  namespace: kube-system
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`10.117.145.50`) && ((PathPrefix(`/api`) || PathPrefix(`/dashboard`)))
+      services:
+        - kind: TraefikService
+          name: api@internal
+          namespace: kube-system
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: strip-prefix
+  namespace: nginx
+spec:
+  stripPrefix:
+    prefixes:
+      - /nginx
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: signoz
+  namespace: platform
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`signoz.local`) && PathPrefix(`/`)
+      kind: Rule
+      priority: 10
+      services:
+        - name: signoz-frontend
+          port: 3301
+          namespace: platform
+    - match: Host(`10.117.145.50`) && PathPrefix(`/nginx`)
+      kind: Rule
+      priority: 20
+      services:
+        - name: nginx
+          port: 80
+          namespace: nginx
+      middlewares:
+        - name: strip-prefix
+          namespace: nginx

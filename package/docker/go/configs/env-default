@@ -1,0 +1,2 @@
+HELLO_MESSAGE=Opentelemtry tracing
+COLLECTOR=signoz-otel-collector.platform:4317
