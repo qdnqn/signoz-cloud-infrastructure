@@ -69,7 +69,7 @@ func setupTracing(config Config) (func(context.Context) error, error) {
 	res, err := resource.New(ctx,
 		resource.WithAttributes(
 			// the service name used to display traces in backends
-			semconv.ServiceNameKey.String("BackendService"),
+			semconv.ServiceNameKey.String("GoBackendService"),
 		),
 	)
 	if err != nil {
