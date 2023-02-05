@@ -20,9 +20,9 @@ if [[ ! -f "/home/qdnqn/.run.once" ]]; then
   helm upgrade --install signoz ../charts/signoz --namespace platform
 
   VM_IP=hostname -I | cut -d " " -f1
-  sed -i "s/{VM_IP}/${VM_IP}/g" resources/raw/yaml/setup/ingresses.yaml
+  sed "s/{VM_IP}/${VM_IP}/g" resources/raw/yaml/setup/ingresses.yaml > resources/raw/yaml/setup/ingresses-rendered.yaml
 
-  kubectl apply -f resources/raw/yaml/setup/ingresses.yaml
+  kubectl apply -f resources/raw/yaml/setup/ingresses-rendered.yaml
   
   touch /home/ubuntu/.run.once
 fi

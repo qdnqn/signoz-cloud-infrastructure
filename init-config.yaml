@@ -76,7 +76,7 @@ write_files:
       cd /home/ubuntu/
                   
       cd /home/ubuntu/cloud-native-infrastructure
-      ./scripts/setup-infrastructure.sh
+      ./package/setup-infrastructure.sh
       
       export GOROOT=/usr/local/go
       export PATH=$GOROOT/bin:$PATH
