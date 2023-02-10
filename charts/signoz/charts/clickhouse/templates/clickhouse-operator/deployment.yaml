@@ -1,0 +1,133 @@
+# Template Parameters:
+#
+# NAMESPACE={{ include "clickhouse.namespace" . }}
+# COMMENT=
+# OPERATOR_IMAGE={{ template "clickhouseOperator.image" . }}
+# OPERATOR_IMAGE_PULL_POLICY={{ .Values.clickhouseOperator.image.pullPolicy }}
+# METRICS_EXPORTER_IMAGE={{ include "metricsExporter.image" . }}
+# METRICS_EXPORTER_IMAGE_PULL_POLICY={{ .Values.clickhouseOperator.metricsExporter.image.pullPolicy }}
+#
+# Setup Deployment for clickhouse-operator
+# Deployment would be created in kubectl-specified namespace
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ include "clickhouseOperator.fullname" . }}
+  namespace: {{ include "clickhouse.namespace" . }}
+  labels:
+    {{- include "clickhouseOperator.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "clickhouseOperator.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        {{- if .Values.clickhouseOperator.podAnnotations }}
+          {{- toYaml .Values.clickhouseOperator.podAnnotations | nindent 8 }}
+        {{- end }}
+        checksum/config: {{ include (print $.Template.BasePath "/clickhouse-operator/configmap.yaml") . | sha256sum }}
+      labels:
+        {{- include "clickhouseOperator.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "clickhouseOperator.fullname" . }}
+      volumes:
+        - name: etc-clickhouse-operator-folder
+          configMap:
+            name: {{ include "clickhouseOperator.fullname" . }}-etc-files
+        - name: etc-clickhouse-operator-confd-folder
+          configMap:
+            name: {{ include "clickhouseOperator.fullname" . }}-etc-confd-files
+        - name: etc-clickhouse-operator-configd-folder
+          configMap:
+            name: {{ include "clickhouseOperator.fullname" . }}-etc-configd-files
+        - name: etc-clickhouse-operator-templatesd-folder
+          configMap:
+            name: {{ include "clickhouseOperator.fullname" . }}-etc-templatesd-files
+        - name: etc-clickhouse-operator-usersd-folder
+          configMap:
+            name: {{ include "clickhouseOperator.fullname" . }}-etc-usersd-files
+      containers:
+        - name: {{ include "clickhouseOperator.fullname" . }}
+          image: {{ template "clickhouseOperator.image" . }}
+          imagePullPolicy: {{ .Values.clickhouseOperator.image.pullPolicy }}
+          volumeMounts:
+            - name: etc-clickhouse-operator-folder
+              mountPath: /etc/clickhouse-operator
+            - name: etc-clickhouse-operator-confd-folder
+              mountPath: /etc/clickhouse-operator/conf.d
+            - name: etc-clickhouse-operator-configd-folder
+              mountPath: /etc/clickhouse-operator/config.d
+            - name: etc-clickhouse-operator-templatesd-folder
+              mountPath: /etc/clickhouse-operator/templates.d
+            - name: etc-clickhouse-operator-usersd-folder
+              mountPath: /etc/clickhouse-operator/users.d
+          env:
+            # Pod-specific
+            # spec.nodeName: ip-172-20-52-62.ec2.internal
+            - name: OPERATOR_POD_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            # metadata.name: clickhouse-operator-6f87589dbb-ftcsf
+            - name: OPERATOR_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            # metadata.namespace: kube-system
+            - name: OPERATOR_POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            # status.podIP: 100.96.3.2
+            - name: OPERATOR_POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            # spec.serviceAccount: {{ include "clickhouseOperator.fullname" . }}
+            # spec.serviceAccountName: {{ include "clickhouseOperator.fullname" . }}
+            - name: OPERATOR_POD_SERVICE_ACCOUNT
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.serviceAccountName
+
+            # Container-specific
+            - name: OPERATOR_CONTAINER_CPU_REQUEST
+              valueFrom:
+                resourceFieldRef:
+                  containerName: {{ include "clickhouseOperator.fullname" . }}
+                  resource: requests.cpu
+            - name: OPERATOR_CONTAINER_CPU_LIMIT
+              valueFrom:
+                resourceFieldRef:
+                  containerName: {{ include "clickhouseOperator.fullname" . }}
+                  resource: limits.cpu
+            - name: OPERATOR_CONTAINER_MEM_REQUEST
+              valueFrom:
+                resourceFieldRef:
+                  containerName: {{ include "clickhouseOperator.fullname" . }}
+                  resource: requests.memory
+            - name: OPERATOR_CONTAINER_MEM_LIMIT
+              valueFrom:
+                resourceFieldRef:
+                  containerName: {{ include "clickhouseOperator.fullname" . }}
+                  resource: limits.memory
+
+        - name: {{ include "metricsExporter.fullname" . }}
+          image: {{ include "metricsExporter.image" . }}
+          imagePullPolicy: {{ .Values.clickhouseOperator.metricsExporter.image.pullPolicy }}
+          volumeMounts:
+            - name: etc-clickhouse-operator-folder
+              mountPath: /etc/clickhouse-operator
+            - name: etc-clickhouse-operator-confd-folder
+              mountPath: /etc/clickhouse-operator/conf.d
+            - name: etc-clickhouse-operator-configd-folder
+              mountPath: /etc/clickhouse-operator/config.d
+            - name: etc-clickhouse-operator-templatesd-folder
+              mountPath: /etc/clickhouse-operator/templates.d
+            - name: etc-clickhouse-operator-usersd-folder
+              mountPath: /etc/clickhouse-operator/users.d
+          ports:
+            - containerPort: {{ .Values.clickhouseOperator.metricsExporter.service.port }}
+              name: metrics

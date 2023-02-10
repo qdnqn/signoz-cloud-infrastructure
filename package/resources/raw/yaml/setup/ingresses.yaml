@@ -10,7 +10,7 @@ spec:
     - websecure
   routes:
     - kind: Rule
-      match: Host(`10.117.145.50`) && ((PathPrefix(`/api`) || PathPrefix(`/dashboard`)))
+      match: Host(`{VM_IP}`) && ((PathPrefix(`/api`) || PathPrefix(`/dashboard`)))
       services:
         - kind: TraefikService
           name: api@internal
@@ -43,7 +43,7 @@ spec:
         - name: signoz-frontend
           port: 3301
           namespace: platform
-    - match: Host(`10.117.145.50`) && PathPrefix(`/nginx`)
+    - match: Host(`{VM_IP}`) && PathPrefix(`/nginx`)
       kind: Rule
       priority: 20
       services:

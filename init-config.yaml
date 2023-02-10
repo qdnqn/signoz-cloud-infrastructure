@@ -6,6 +6,7 @@ packages:
   - curl
   - htop
 runcmd:
+  - 'snap install multipass-sshfs'
   - 'curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"'
   - 'curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"'
   - 'echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check'
@@ -15,13 +16,9 @@ runcmd:
   - 'echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null'
   - 'apt-get update'
   - 'apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin -y'
-  - 'snap install go --classic'
   - 'curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3'
   - 'chmod 700 get_helm.sh'
   - './get_helm.sh'
-  - 'wget  https://go.dev/dl/go1.19.linux-amd64.tar.gz'
-  - 'sudo tar -xvf go1.19.linux-amd64.tar.gz'
-  - 'sudo mv go /usr/local'
   - 'echo "$(hostname -I | cut -d" " -f1)  k3s.local.registry.com" >> /etc/hosts'
   - 'curl -sfL https://get.k3s.io | sh -'
   - "echo 'eval `ssh-agent`' >> /etc/bash.bashrc"
@@ -86,6 +83,6 @@ write_files:
       nslookup k3s.local.registry.com
       
       if [[ $? == 1 ]]; then
-        echo "${VM_IP} k3s.local.registry.com" >> /etc/hosts
+        sudo -- /bin/sh -c ' echo "${VM_IP} k3s.local.registry.com" >> /etc/hosts'
       fi
     path: /home/ubuntu/.bash_profile
