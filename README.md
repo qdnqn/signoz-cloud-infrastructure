@@ -55,7 +55,7 @@ signoz-frontend-57bb96c66f-ch22x                    1/1     Running   0         
 ubuntu@k3s:~/signoz-cloud-infrastructure k get pods -n nginx
 NAME                     READY   STATUS    RESTARTS      AGE
 nginx-597557b498-ldscv   1/1     Running   4 (38h ago)   2d21h
-ubuntu@k3s:~/cloud-native-infrastructure$ k get pods -n backend
+ubuntu@k3s:~/signoz-cloud-infrastructure$ k get pods -n backend
 NAME                     READY   STATUS    RESTARTS   AGE
 backend-58ccbcbf-rlxtt   1/1     Running   0          21m
 ```
