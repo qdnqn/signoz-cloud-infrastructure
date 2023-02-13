@@ -57,11 +57,11 @@ write_files:
         sleep 1
       done;
 
-      if [[ ! -d "/home/ubuntu/cloud-native-infrastructure" ]]; then
+      if [[ ! -d "/home/ubuntu/signoz-cloud-infrastructure" ]]; then
         echo -n "Waiting for mount of directory "
       fi
       
-      while [[ ! -d "/home/ubuntu/cloud-native-infrastructure" ]];
+      while [[ ! -d "/home/ubuntu/signoz-cloud-infrastructure" ]];
       do
         printf "\b${SP:i++%${#SP}:1}"
         sleep 1
@@ -72,7 +72,7 @@ write_files:
 
       cd /home/ubuntu/
                   
-      cd /home/ubuntu/cloud-native-infrastructure
+      cd /home/ubuntu/signoz-cloud-infrastructure
       ./package/setup-infrastructure.sh
       
       export GOROOT=/usr/local/go

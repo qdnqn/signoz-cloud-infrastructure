@@ -2,7 +2,7 @@
 
 cd "$(dirname "$0")"
 
-if [[ ! -f "/home/qdnqn/.run.once" ]]; then
+if [[ ! -f "/home/ubuntu/.run.once" ]]; then
   export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 
   wget  https://go.dev/dl/go1.19.linux-amd64.tar.gz

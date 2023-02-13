@@ -5,7 +5,7 @@
 ```bash
 brew install multipass --cask
 git clone https://github.com/qdnqn/signoz-cloud-infrastructure.git 
-cd cloud-native-infrastructure
+cd signoz-cloud-infrastructure
 ./start.sh
 ```
 
@@ -13,7 +13,7 @@ cd cloud-native-infrastructure
 ```bash
 snap install multipass
 git clone https://github.com/qdnqn/signoz-cloud-infrastructure.git 
-cd cloud-native-infrastructure
+cd signoz-cloud-infrastructure
 ./start.sh
 ```
 
